@@ -12,12 +12,12 @@ const { startCleanupJob } = require('./utils/helpers');
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// Security middleware
+
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
-// CORS configuration
+
 app.use(cors({
   origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
   credentials: true,
@@ -25,10 +25,10 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
-// Rate limiting
+
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000, 
+  max: 100, 
   message: {
     error: true,
     message: 'Too many requests from this IP, please try again later.',
@@ -40,20 +40,20 @@ const limiter = rateLimit({
 
 app.use(limiter);
 
-// Body parsing middleware
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Trust proxy for proper IP detection
+
 app.set('trust proxy', 1);
 
-// Custom logging middleware (MANDATORY as per requirements)
+
 app.use(loggingMiddleware);
 
-// Routes
+
 app.use('/', urlRoutes);
 
-// Health check endpoint
+
 app.get('/health', (req, res) => {
   logger.info('Health check requested');
   res.json({
@@ -64,7 +64,7 @@ app.get('/health', (req, res) => {
   });
 });
 
-// 404 handler
+
 app.use('*', (req, res) => {
   logger.warn('404 - Route not found', { 
     method: req.method, 
@@ -80,7 +80,7 @@ app.use('*', (req, res) => {
   });
 });
 
-// Global error handler
+
 app.use((err, req, res, next) => {
   logger.error('Unhandled error', {
     error: err.message,
@@ -98,7 +98,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Graceful shutdown
+
 process.on('SIGTERM', () => {
   logger.info('SIGTERM received. Shutting down gracefully...');
   process.exit(0);
@@ -109,7 +109,7 @@ process.on('SIGINT', () => {
   process.exit(0);
 });
 
-// Start the server
+
 app.listen(PORT, () => {
   logger.info('Server started', {
     port: PORT,
@@ -121,8 +121,8 @@ app.listen(PORT, () => {
   console.log(`📋 Health check: http://localhost:${PORT}/health`);
   console.log(`📊 API Base URL: http://localhost:${PORT}`);
   
-  // Start periodic cleanup of expired URLs
-  startCleanupJob(urlStorage, 30); // Clean up every 30 minutes
+
+  startCleanupJob(urlStorage, 30); 
 });
 
 module.exports = app;
